@@ -1,0 +1,48 @@
+[project]
+name = "plantos-backend"
+version = "0.1.0"
+description = "FastAPI + LangGraph services for PlantOS"
+readme = "README.md"
+authors = [
+    { name = "Jarret Spino", email = "spino@usc.edu" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "anthropic>=0.73.0",
+    "fastapi>=0.121.2",
+    "google-cloud-firestore>=2.21.0",
+    "google-cloud-storage>=3.4.1",
+    "google-generativeai>=0.8.5",
+    "langchain>=1.0.7",
+    "langgraph>=1.0.3",
+    "openai>=2.8.1",
+    "pillow>=12.0.0",
+    "pydantic-settings>=2.12.0",
+    "python-dotenv>=1.2.1",
+    "stripe>=13.2.0",
+    "uvicorn[standard]>=0.38.0",
+]
+
+[project.scripts]
+plantos-backend = "plantos_backend:main"
+
+[build-system]
+requires = ["uv_build>=0.8.14,<0.9.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.1",
+    "ruff>=0.14.5",
+]
+
+[tool.ruff]
+target-version = "py313"
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "I"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]

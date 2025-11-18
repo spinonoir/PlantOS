@@ -1,0 +1,46 @@
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+*.dist-info/
+*.pyo
+*.pyd
+*.env
+*.venv
+venv/
+.env/
+.env.*
+
+# Expo / React Native
+node_modules/
+.expo/
+.expo-shared/
+.web-build/
+android/
+ios/
+
+# Firebase / tooling
+*.log
+*.sqlite3
+coverage/
+
+# IDEs
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Build
+dist/
+build/
+
+# Misc
+*.iml

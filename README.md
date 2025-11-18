@@ -1,4 +1,4 @@
-# PlantOS 🌱  
+# PlantOS  
 _Intelligent Plant Care, Experimentation & Marketplace_
 
 PlantOS is a cross-platform system for tracking plants, optimizing their care with AI, running experiments on different care strategies, and buying/selling/trading plants through a built-in marketplace.
@@ -73,52 +73,87 @@ It’s designed for hobbyists, collectors, and small growers who want structured
 
 ---
 
-## Repository Structure (early draft)
+## Repository Structure
 
 ```text
 PlantOS/
-├─ docs/
-│  ├─ spec/
-│  │  └─ v1.0/
-│  │     └─ PLANT-OS_SPEC.md
-│  └─ product/
-│     └─ PLANT-OS_PRODUCT_OVERVIEW.md
 ├─ backend/
-├─ frontend/
-├─ .gitignore
-├─ README.md
-└─ LICENSE (TBD)
+│  └─ plantos_backend/        # FastAPI + LangGraph service (uv-managed)
+├─ docs/
+│  ├─ spec/v1.0/              # Living architecture + roadmap
+│  └─ product/                # Product brief / positioning
+├─ frontend/                  # Expo app with offline cache + AI flows
+├─ third_party/NOTES.md       # OSS attributions & intake log
+├─ .github/workflows/         # Lint + CI automation
+├─ LICENSE                    # Dual license (MIT frontend / proprietary backend)
+└─ README.md
 ```
 
 ---
 
-## Getting Started (once backend/frontend exist)
+## Getting Started
+
+### Requirements
+
+- [uv](https://github.com/astral-sh/uv) for Python environments (no pyenv required)  
+- Node.js 20.x + npm  
+- Expo CLI (`npx expo start`)  
+
+### Backend (FastAPI + LangGraph)
 
 ```bash
-cd ~/projects/PlantOS
+cd /Users/jarret/Documents/projects/PlantOS/backend/plantos_backend
+uv sync --all-extras --dev
+uv run fastapi dev plantos_backend.app:app --reload
 
-git init
-git branch -M main
-git add .
-git commit -m "chore: bootstrap PlantOS docs and repo structure"
-
-# Create remote and push
-git remote add origin git@github.com:<your-username>/PlantOS.git
-git push -u origin main
+# Run tests + lint
+uv run pytest
+uv run ruff check src
 ```
 
----
+Key endpoints:
 
-## License
+- `GET /health` – readiness probe  
+- `POST /plants` – plant CRUD + schedule generation  
+- `GET /schedules/merged` – merged care tasks per day  
+- `POST /ai/identify` / `/ai/health` – LangGraph-backed prototypes  
+- `POST /marketplace/listings` & `/orders` – marketplace stubs for Stripe integration  
 
-- Frontend: MIT (planned)  
-- Backend: TBD (proprietary support)
+### Frontend (Expo + offline cache)
+
+```bash
+cd /Users/jarret/Documents/projects/PlantOS/frontend
+npm install
+npm run start          # expo start --offline
+npm run lint
+```
+
+Highlights:
+
+- React Navigation tabs for Plants, Diagnostics, Experiments, Marketplace  
+- Zustand store with SQLite persistence (`expo-sqlite/next`)  
+- Local notifications bootstrapped via `expo-notifications`  
+- API client pointed at `http://localhost:8000` by default (override `EXPO_PUBLIC_API_URL`)  
+
+### Continuous Integration
+
+`.github/workflows/lint.yml` runs:
+
+- `uv run ruff check` + `uv run pytest` inside `backend/plantos_backend`  
+- `npm install && npm run lint` inside `frontend/`  
+
+### OSS Intake & Licensing
+
+- Track every copied snippet + license in `third_party/NOTES.md`.  
+- Frontend code is MIT licensed; backend + infrastructure is covered by the PlantOS proprietary license (see `LICENSE`).  Third-party components keep their upstream licenses.
 
 ---
 
 ## Status
 
-This project is in **early design**.  
-✅ v1.0 spec & product overview complete  
-🟡 Backend & frontend scaffolding next  
-🔜 MVP tracking + AI features
+- ✅ Phase 0: Repo bootstrap, FastAPI health route, Expo scaffolding, CI linting  
+- 🚧 Phase 1: Plant CRUD, schedule optimization, offline reminders (prototype delivered)  
+- 🔬 Phase 2: LangGraph identification / diagnostics + experiment wiring (prototype delivered)  
+- 🛒 Phase 3: Propagation → marketplace listings + Stripe stubs (prototype delivered)  
+
+See `docs/spec/v1.0/PLANT-OS_SPEC.md` and `PlantOS_BOOTSTRAP.md` for the full roadmap.
