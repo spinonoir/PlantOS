@@ -16,10 +16,21 @@ The objective of the bootstrap phase is to establish:
 - The high-level approach to setting up backend and frontend foundations.
 - The method for incorporating libraries and third‑party services without over‑specifying implementation details.
 - A clear separation between PlantOS‑owned code, third‑party reference code, and external dependencies.
+- A Git/GitHub workflow that keeps `master` linear and ties every change to a tracked issue.
 
 This phase does **not** involve detailed implementation. Instead, it defines the structure and conventions the project will rely on once development begins.
 
 ---
+
+## 1.1 Git & Issue Workflow
+
+- Push `master` before starting new work (`git status`, `git push origin master`).
+- Create a GitHub issue using the templates in `docs/issues/phase-*.md`.
+- Branch from `master` using `feature/<issue-id>-<slug>` (example: `feature/P1.2-care-schedule-api`).
+- Implement + test (backend: `uv run ruff check`, `uv run pytest`; frontend: `npm run lint`).
+- Update docs (`README.md`, this guide, `docs/spec/v1.0/PLANT-OS_SPEC.md`, `docs/issues/`).
+- Commit with conventional messages, push the branch, open a PR referencing the issue, include verification steps/screenshots, and squash-merge back into `master`.
+- Delete the branch after merge, close the issue, and update the CHANGELOG/release notes.
 
 ## 2. Project Hierarchy Overview
 

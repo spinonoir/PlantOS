@@ -142,6 +142,14 @@ Highlights:
 - `uv run ruff check` + `uv run pytest` inside `backend/plantos_backend`  
 - `npm install && npm run lint` inside `frontend/`  
 
+### Git & Issue Workflow
+
+1. Keep `master` clean and pushed (`git status`, `git push origin master`) before opening new work.
+2. Open a GitHub issue using the templates in `docs/issues/`. Each issue maps to a branch named `feature/<issue-id>-<slug>` (e.g., `feature/P1.2-care-schedule-api`).
+3. Implement the change, run tests (`uv run ruff check`, `uv run pytest`, `npm run lint`), and update docs (`README.md`, `PlantOS_BOOTSTRAP.md`, `docs/spec/v1.0/PLANT-OS_SPEC.md`).
+4. Push the branch, open a PR referencing the issue, list verification steps/screenshots, and squash-merge back to `master`.
+5. Update `docs/issues/` and CHANGELOG entries as issues close; tag releases at the end of every phase.
+
 ### OSS Intake & Licensing
 
 - Track every copied snippet + license in `third_party/NOTES.md`.  
