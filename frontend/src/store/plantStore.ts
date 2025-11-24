@@ -2,6 +2,7 @@ import { create } from "zustand";
 
 import { api } from "@/api/client";
 import { PlantStore } from "@/storage/sqlite";
+import { SyncAdapter } from "@/storage/sync";
 import type { Plant, ScheduleDay, TimelineEvent } from "@/types/plants";
 
 export type PlantForm = {
@@ -33,16 +34,27 @@ export const usePlantsStore = create<PlantState>((set, get) => ({
   loading: true,
   hydrate: async () => {
     try {
-      const [remotePlants, schedule] = await Promise.all([
-        api.plants.list(),
-        api.schedules.merged(),
-      ]);
-      PlantStore.save(remotePlants);
-      set({ plants: remotePlants, schedule, loading: false });
+      set({ loading: true });
+      // 1. Try to sync with backend
+      await SyncAdapter.pull();
+
+      // 2. Load from local DB (source of truth for UI)
+      const plants = PlantStore.list();
+      // For schedule, we might need a local calculation or just fetch from API if online
+      // For now, let's try to fetch schedule from API, fallback to empty or local calc
+      let schedule: ScheduleDay[] = [];
+      try {
+        schedule = await api.schedules.merged();
+      } catch (e) {
+        console.log("Offline: could not fetch schedule");
+      }
+
+      set({ plants, schedule, loading: false });
     } catch (error) {
-      console.warn("Falling back to offline cache", error);
-      const cached = PlantStore.list();
-      set({ plants: cached, loading: false });
+      console.error("Hydration failed", error);
+      // Fallback to local
+      const plants = PlantStore.list();
+      set({ plants, loading: false });
     }
   },
   addPlant: async (form: PlantForm) => {

@@ -45,3 +45,12 @@ class ReminderChannel(str, Enum):
 
 
 Priority = Literal["low", "medium", "high"]
+
+
+class CollectionNames(str, Enum):
+    plants = "plants"
+    tasks = "tasks"
+    reminders = "reminders"
+    events = "events"
+    experiments = "experiments"
+

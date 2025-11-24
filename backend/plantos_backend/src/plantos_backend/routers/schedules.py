@@ -1,20 +1,25 @@
-"""Schedule endpoints."""
+"""Schedule and task feed APIs."""
 from __future__ import annotations
 
 from fastapi import APIRouter
 
 from plantos_backend.repositories.plants import plant_repository
-from plantos_backend.schemas.schedules import ScheduleDay
-from plantos_backend.services import scheduler
+from plantos_backend.schemas.plants import DueTask
+from plantos_backend.services import reminders
 
 router = APIRouter(prefix="/schedules", tags=["schedules"])
 
 
-@router.get("/merged", response_model=list[ScheduleDay])
-def merged_schedule(horizon_days: int = 7) -> list[ScheduleDay]:
-    tasks = scheduler.forecast_tasks(plant_repository.list(), horizon_days=horizon_days)
-    grouped = scheduler.merge_tasks(tasks)
+@router.get("/due", response_model=list[DueTask])
+def due_tasks(minutes: int = 120) -> list[DueTask]:
+    """Get tasks due within the next N minutes."""
+    tasks = reminders.due_within(plant_repository.list_tasks(), minutes=minutes)
     return [
-        ScheduleDay(date=date, tasks=sorted(tasks, key=lambda task: task.next_due_at))
-        for date, tasks in sorted(grouped.items())
+        DueTask(
+            task_id=task.id,
+            plant_id=task.plant_id,
+            signal=task.signal.value,
+            next_due_at=task.next_due_at,
+        )
+        for task in tasks
     ]

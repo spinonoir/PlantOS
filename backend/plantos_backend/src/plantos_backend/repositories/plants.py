@@ -18,9 +18,6 @@ class PlantRepository:
     def create(self, payload: PlantCreate) -> Plant:
         plant = Plant(**payload.model_dump())
         memory_store.plants[plant.id] = plant
-        for signal in (CareSignal.watering, CareSignal.feeding):
-            task = CareTask.from_plant(plant, signal=signal)
-            memory_store.care_tasks[task.id] = task
         return plant
 
     def update(self, plant_id: str, payload: PlantUpdate) -> Optional[Plant]:
@@ -58,6 +55,17 @@ class PlantRepository:
         if plant_id:
             tasks = [task for task in tasks if task.plant_id == plant_id]
         return sorted(tasks, key=lambda task: task.next_due_at)
+
+    def add_task(self, task: CareTask) -> CareTask:
+        memory_store.care_tasks[task.id] = task
+        return task
+
+    def get_task(self, task_id: str) -> Optional[CareTask]:
+        return memory_store.care_tasks.get(task_id)
+
+    def update_task(self, task: CareTask) -> CareTask:
+        memory_store.care_tasks[task.id] = task
+        return task
 
 
 plant_repository = PlantRepository()

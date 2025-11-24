@@ -27,3 +27,7 @@ export async function scheduleReminder(
     trigger: { seconds },
   });
 }
+
+export async function cancelReminder(identifier: string) {
+  await Notifications.cancelScheduledNotificationAsync(identifier);
+}

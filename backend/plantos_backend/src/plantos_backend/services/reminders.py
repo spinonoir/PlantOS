@@ -13,6 +13,18 @@ def due_within(tasks: Iterable[CareTask], minutes: int = 120) -> List[CareTask]:
     return [task for task in tasks if task.next_due_at <= window]
 
 
-def postpone(task: CareTask, minutes: int) -> CareTask:
-    updated = task.model_copy(update={"next_due_at": task.next_due_at + timedelta(minutes=minutes)})
-    return updated
+def enqueue_reminders(tasks: List[CareTask]) -> List[str]:
+    """
+    Stub for enqueuing push notifications.
+    In a real system, this would push to a queue or call Firebase Cloud Messaging.
+    Returns a list of reminder IDs generated.
+    """
+    reminder_ids = []
+    for task in tasks:
+        # In a real implementation, we would create a Reminder document here
+        # and send the notification.
+        # For now, we just simulate it.
+        print(f"Enqueuing reminder for task {task.id} (due {task.next_due_at})")
+        reminder_ids.append(f"rem_{task.id}")
+    return reminder_ids
+

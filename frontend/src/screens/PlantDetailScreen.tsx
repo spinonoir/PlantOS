@@ -11,6 +11,7 @@ import {
 import { api } from "@/api/client";
 import { usePlantsStore } from "@/store/plantStore";
 import type { CareTask, TimelineEvent } from "@/types/plants";
+import { scheduleReminder } from "@/hooks/useNotifications";
 
 interface Props {
   route: { params: { plantId: string } };
@@ -27,8 +28,8 @@ export function PlantDetailScreen({ route }: Props) {
   const [note, setNote] = useState("");
 
   useEffect(() => {
-    api.plants.tasks(plantId).then(setTasks);
-    api.plants.timeline(plantId).then(setTimeline);
+    api.plants.tasks(plantId).then((data) => setTasks(data as CareTask[]));
+    api.plants.timeline(plantId).then((data) => setTimeline(data as TimelineEvent[]));
   }, [plantId]);
 
   if (!plant) {
@@ -43,7 +44,7 @@ export function PlantDetailScreen({ route }: Props) {
     await logEvent(plantId, note);
     setNote("");
     const updated = await api.plants.timeline(plantId);
-    setTimeline(updated);
+    setTimeline(updated as TimelineEvent[]);
   };
 
   return (
@@ -57,10 +58,36 @@ export function PlantDetailScreen({ route }: Props) {
         <Text style={styles.sectionTitle}>Care Tasks</Text>
         {tasks.map((task) => (
           <View key={task.id} style={styles.row}>
-            <Text style={styles.label}>{task.signal}</Text>
-            <Text style={styles.value}>
-              {new Date(task.next_due_at).toLocaleString()}
-            </Text>
+            <View>
+              <Text style={styles.label}>{task.signal}</Text>
+              <Text style={styles.value}>
+                {new Date(task.next_due_at).toLocaleString()}
+              </Text>
+            </View>
+            <Button
+              title="Complete"
+              onPress={async () => {
+                await api.plants.completeTask(task.id);
+                const [updatedTasks, updatedTimeline] = await Promise.all([
+                  api.plants.tasks(plantId) as Promise<CareTask[]>,
+                  api.plants.timeline(plantId) as Promise<TimelineEvent[]>,
+                ]);
+                setTasks(updatedTasks);
+                setTimeline(updatedTimeline);
+
+                // Schedule reminder for next due date
+                // Find the updated task
+                const updatedTask = updatedTasks.find((t) => t.signal === task.signal);
+                if (updatedTask) {
+                  // Calculate seconds until due (simplified for demo)
+                  const due = new Date(updatedTask.next_due_at).getTime();
+                  const now = Date.now();
+                  const seconds = Math.max(5, Math.floor((due - now) / 1000));
+
+                  scheduleReminder(`Time to ${updatedTask.signal} ${plant.name}`, "Check your plant!", seconds);
+                }
+              }}
+            />
           </View>
         ))}
       </View>
