@@ -22,6 +22,21 @@ async function request<T>(
   return response.json() as Promise<T>;
 }
 
+async function upload<T>(path: string, formData: FormData): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "POST",
+    body: formData,
+    headers: {
+      // Content-Type is set automatically for FormData
+    },
+  });
+  if (!response.ok) {
+    const message = await response.text();
+    throw new Error(message || "Upload failed");
+  }
+  return response.json() as Promise<T>;
+}
+
 export const api = {
   plants: {
     list: () => request("/plants"),
@@ -33,6 +48,16 @@ export const api = {
       request(`/plants/${plantId}/timeline`, { method: "POST", body: payload }),
     completeTask: (taskId: string) =>
       request(`/plants/tasks/${taskId}/complete`, { method: "POST" }),
+    diagnose: (plantId: string, imageUri: string) => {
+      const formData = new FormData();
+      // React Native FormData expects an object with uri, name, type
+      formData.append("file", {
+        uri: imageUri,
+        name: "photo.jpg",
+        type: "image/jpeg",
+      } as any);
+      return upload(`/plants/${plantId}/diagnose`, formData);
+    },
   },
   schedules: {
     merged: (horizonDays = 7) =>

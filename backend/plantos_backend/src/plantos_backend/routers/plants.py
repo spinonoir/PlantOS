@@ -14,6 +14,9 @@ from plantos_backend.schemas.plants import (
     TimelineEventResponse,
 )
 from plantos_backend.services import reminders, scheduler
+from plantos_backend.services.storage import get_storage_service
+from plantos_backend.ai.graphs import HEALTH_CHECK_GRAPH
+from fastapi import UploadFile, File
 
 router = APIRouter(prefix="/plants", tags=["plants"])
 
@@ -103,3 +106,44 @@ def list_timeline(plant_id: str) -> list[TimelineEventResponse]:
     if not plant_repository.get(plant_id):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plant not found")
     return plant_repository.list_timeline(plant_id)
+
+
+@router.post("/{plant_id}/diagnose")
+async def diagnose_plant(
+    plant_id: str,
+    file: UploadFile = File(...),
+) -> dict:
+    plant = plant_repository.get(plant_id)
+    if not plant:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plant not found")
+
+    # 1. Upload image
+    storage = get_storage_service()
+    image_path = storage.upload_image(file)
+
+    # 2. Run diagnostics
+    # We pass the description as "Diagnose this plant from the photo" + any user notes if we had them.
+    # For now, we assume the AI can look at the photo (or we just use a placeholder description).
+    # Since our current graph only takes text description, we'll simulate it or update the graph later to take image path.
+    # TODO: Update HealthCheckState to accept image_url/path
+    
+    inputs = {
+        "description": f"Visual diagnosis requested. Image available at: {image_path}",
+        # In a real multimodal setup, we'd pass the image to the model.
+    }
+    
+    result = await HEALTH_CHECK_GRAPH.ainvoke(inputs)
+    
+    # 3. Save to timeline
+    diagnosis = result.get("diagnosis", "Unknown")
+    recommendations = result.get("recommendations", [])
+    
+    note = f"Diagnosis: {diagnosis}\nRecommendations: {', '.join(recommendations)}"
+    
+    plant_repository.add_timeline_event(plant_id, TimelineEventCreate(
+        event_type="health_check",
+        note=note,
+        photo_url=image_path if "http" in image_path else None # Only save URL if it's public, otherwise local path might be tricky for frontend
+    ))
+
+    return result

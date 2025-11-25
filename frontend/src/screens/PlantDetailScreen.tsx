@@ -15,9 +15,10 @@ import { scheduleReminder } from "@/hooks/useNotifications";
 
 interface Props {
   route: { params: { plantId: string } };
+  navigation: any;
 }
 
-export function PlantDetailScreen({ route }: Props) {
+export function PlantDetailScreen({ route, navigation }: Props) {
   const { plantId } = route.params;
   const plant = usePlantsStore((state) =>
     state.plants.find((item) => item.id === plantId),
@@ -53,6 +54,11 @@ export function PlantDetailScreen({ route }: Props) {
       <Text style={styles.subtitle}>
         {plant.species ?? "Unidentified species"}
       </Text>
+
+      <Button
+        title="Diagnose Health"
+        onPress={() => navigation.navigate("Diagnosis", { plantId })}
+      />
 
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>Care Tasks</Text>
