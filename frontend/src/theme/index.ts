@@ -1,4 +1,4 @@
-import { Theme } from "@react-navigation/native";
+import { DarkTheme, DefaultTheme, Theme } from "@react-navigation/native";
 
 const palette = {
   forest: "#1B4332",
@@ -8,8 +8,9 @@ const palette = {
 };
 
 export const lightTheme: Theme = {
-  dark: false,
+  ...DefaultTheme,
   colors: {
+    ...DefaultTheme.colors,
     primary: palette.forest,
     background: "#FFFFFF",
     card: "#FFFFFF",
@@ -20,8 +21,9 @@ export const lightTheme: Theme = {
 };
 
 export const darkTheme: Theme = {
-  dark: true,
+  ...DarkTheme,
   colors: {
+    ...DarkTheme.colors,
     primary: palette.mint,
     background: "#0B1D16",
     card: "#13291F",

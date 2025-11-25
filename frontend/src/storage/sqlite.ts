@@ -1,4 +1,4 @@
-import { openDatabaseSync } from "expo-sqlite/next";
+import { openDatabaseSync } from "expo-sqlite";
 
 import type { Plant } from "@/types/plants";
 

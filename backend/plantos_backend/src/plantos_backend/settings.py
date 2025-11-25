@@ -18,6 +18,11 @@ class AppSettings(BaseSettings):
     port: int = 8000
     cors_origins: List[str] = Field(default_factory=lambda: ["*"])
 
+    # AI Providers
+    openai_api_key: str | None = None
+    gemini_api_key: str | None = None
+    default_ai_provider: str = "gemini"
+
     model_config = SettingsConfigDict(
         env_prefix="plantos_",
         env_file=(".env", "../.env", "../../.env"),
