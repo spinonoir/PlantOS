@@ -3,11 +3,12 @@ from __future__ import annotations
 
 from datetime import datetime, timedelta, timezone
 from enum import Enum
-from typing import List, Optional
+from typing import ClassVar, List, Optional
+
 
 from pydantic import Field
 
-from plantos_backend.models.common import CareSignal, Priority, TimestampedModel, generate_id
+from plantos_backend.models.common import CareSignal, CollectionNames, Priority, TimestampedModel, generate_id
 
 
 class LightLevel(str, Enum):
@@ -24,8 +25,9 @@ class Plant(TimestampedModel):
     watering_interval_days: int = 7
     feeding_interval_days: int = 30
     reminders_enabled: bool = True
-    notes: Optional[str] = None
     tags: List[str] = Field(default_factory=list)
+
+    collection_name: ClassVar[str] = CollectionNames.plants
 
     def next_watering_at(self, reference: datetime | None = None) -> datetime:
         reference_time = reference or datetime.now(timezone.utc)
@@ -40,6 +42,8 @@ class CareTask(TimestampedModel):
     next_due_at: datetime
     priority: Priority = "medium"
     duration_minutes: int = 5
+
+    collection_name: ClassVar[str] = CollectionNames.tasks
 
     @classmethod
     def from_plant(cls, plant: Plant, signal: CareSignal) -> "CareTask":
@@ -68,6 +72,9 @@ class TimelineEvent(TimestampedModel):
     note: str
     photo_url: Optional[str] = None
 
+    collection_name: ClassVar[str] = CollectionNames.events
+
+
 
 class Reminder(TimestampedModel):
     id: str = Field(default_factory=lambda: generate_id("reminder"))
@@ -75,3 +82,6 @@ class Reminder(TimestampedModel):
     send_at: datetime
     channel: str = "push"
     delivered_at: Optional[datetime] = None
+
+    collection_name: ClassVar[str] = CollectionNames.reminders
+

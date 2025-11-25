@@ -10,6 +10,8 @@ export type Plant = {
   reminders_enabled: boolean;
   notes?: string;
   tags: string[];
+  created_at?: string;
+  updated_at?: string;
 };
 
 export type CareTask = {

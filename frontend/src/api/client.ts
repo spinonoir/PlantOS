@@ -31,11 +31,13 @@ export const api = {
     timeline: (plantId: string) => request(`/plants/${plantId}/timeline`),
     addTimeline: (plantId: string, payload: Record<string, unknown>) =>
       request(`/plants/${plantId}/timeline`, { method: "POST", body: payload }),
+    completeTask: (taskId: string) =>
+      request(`/plants/tasks/${taskId}/complete`, { method: "POST" }),
   },
   schedules: {
     merged: (horizonDays = 7) =>
       request(`/schedules/merged?horizon_days=${horizonDays}`),
-    due: () => request("/plants/tasks/due"),
+    due: () => request("/schedules/due"),
   },
   ai: {
     identify: (payload: Record<string, unknown>) =>

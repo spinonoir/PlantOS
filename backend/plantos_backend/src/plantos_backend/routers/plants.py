@@ -13,7 +13,7 @@ from plantos_backend.schemas.plants import (
     TimelineEventCreate,
     TimelineEventResponse,
 )
-from plantos_backend.services import reminders
+from plantos_backend.services import reminders, scheduler
 
 router = APIRouter(prefix="/plants", tags=["plants"])
 
@@ -25,7 +25,12 @@ def list_plants() -> list[PlantResponse]:
 
 @router.post("", response_model=PlantResponse, status_code=status.HTTP_201_CREATED)
 def create_plant(payload: PlantCreate) -> PlantResponse:
-    return plant_repository.create(payload)
+    plant = plant_repository.create(payload)
+    # Generate initial tasks
+    tasks = scheduler.generate_initial_tasks(plant)
+    for task in tasks:
+        plant_repository.add_task(task)
+    return plant
 
 
 @router.get("/{plant_id}", response_model=PlantResponse)
@@ -58,18 +63,28 @@ def list_tasks(plant_id: str) -> list[CareTaskResponse]:
     return plant_repository.list_tasks(plant_id)
 
 
-@router.get("/tasks/due", response_model=list[DueTask])
-def due_tasks(minutes: int = 120) -> list[DueTask]:
-    tasks = reminders.due_within(plant_repository.list_tasks(), minutes=minutes)
-    return [
-        DueTask(
-            task_id=task.id,
-            plant_id=task.plant_id,
-            signal=task.signal.value,
-            next_due_at=task.next_due_at,
-        )
-        for task in tasks
-    ]
+
+
+@router.post("/tasks/{task_id}/complete", response_model=CareTaskResponse)
+def complete_task(task_id: str) -> CareTaskResponse:
+    task = plant_repository.get_task(task_id)
+    if not task:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Task not found")
+    
+    plant = plant_repository.get(task.plant_id)
+    if not plant:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Plant not found")
+
+    updated_task, event = scheduler.complete_task(task, plant)
+    
+    plant_repository.update_task(updated_task)
+    plant_repository.add_timeline_event(plant.id, TimelineEventCreate(
+        event_type=event.event_type,
+        note=event.note,
+        photo_url=event.photo_url
+    ))
+    
+    return updated_task
 
 
 @router.post(

@@ -33,7 +33,7 @@ function HomeTabScreens() {
           ) : null,
         tabBarIcon: ({ color, size }) => {
           const icons: Record<string, keyof typeof Feather.glyphMap> = {
-            Home: "leaf",
+            Home: "home",
             Diagnostics: "activity",
             Experiments: "sliders",
             Marketplace: "shopping-bag",

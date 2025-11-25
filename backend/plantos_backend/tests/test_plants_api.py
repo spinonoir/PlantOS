@@ -17,6 +17,6 @@ def test_create_and_list_plants():
 
 
 def test_due_tasks_endpoint():
-    resp = client.get("/plants/tasks/due")
+    resp = client.get("/schedules/due")
     assert resp.status_code == 200
     assert isinstance(resp.json(), list)

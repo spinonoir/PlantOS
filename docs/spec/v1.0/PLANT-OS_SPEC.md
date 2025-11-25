@@ -53,7 +53,21 @@ It is designed to help users care for plants intelligently, experiment with care
 ---
 
 ## 4. Core Data Model
-(see data table in outline — users, plants, experiments, propagation, listings, orders, etc.)
+## 4. Core Data Model
+
+### 4.1 Firestore Collections
+| Collection | Description | Key Fields |
+|------------|-------------|------------|
+| `plants` | Stores plant profiles | `id`, `name`, `species`, `light_level`, `watering_interval_days`, `created_at` |
+| `tasks` | Care tasks generated from plant profiles | `id`, `plant_id`, `signal` (water/feed), `next_due_at`, `priority` |
+| `events` | Timeline of care actions and photos | `id`, `plant_id`, `event_type`, `note`, `photo_url` |
+| `reminders` | Scheduled notifications for tasks | `id`, `task_id`, `send_at`, `channel`, `delivered_at` |
+
+### 4.2 Data Flow
+1. **Plant Creation**: User adds plant -> `plants` doc created -> `tasks` generated based on intervals.
+2. **Care Action**: User marks task done -> `events` doc created -> `tasks` updated with new `next_due_at`.
+3. **Reminders**: Background worker queries `tasks` due soon -> creates `reminders` docs -> triggers push notification.
+
 
 ---
 
