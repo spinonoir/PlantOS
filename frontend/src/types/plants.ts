@@ -35,3 +35,19 @@ export type ScheduleDay = {
   date: string;
   tasks: CareTask[];
 };
+
+export type ExperimentVariant = {
+  id: string;
+  name: string;
+  description: string;
+  metric: number;
+};
+
+export type Experiment = {
+  id: string;
+  hypothesis: string;
+  metric_name: string;
+  variants: ExperimentVariant[];
+  created_at: string;
+  status: string;
+};
