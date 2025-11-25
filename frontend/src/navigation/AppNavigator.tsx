@@ -6,6 +6,7 @@ import type { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import { Pressable } from "react-native";
 
 import { DiagnosticsScreen } from "@/screens/DiagnosticsScreen";
+import DiagnosisScreen from "@/screens/DiagnosisScreen";
 import { ExperimentsScreen } from "@/screens/ExperimentsScreen";
 import { HomeScreen } from "@/screens/HomeScreen";
 import { MarketplaceScreen } from "@/screens/MarketplaceScreen";
@@ -77,6 +78,11 @@ export function AppNavigator() {
         name="NewPlant"
         component={NewPlantScreen}
         options={{ presentation: "modal", title: "New Plant" }}
+      />
+      <Stack.Screen
+        name="Diagnosis"
+        component={DiagnosisScreen}
+        options={{ title: "Plant Diagnosis" }}
       />
     </Stack.Navigator>
   );
