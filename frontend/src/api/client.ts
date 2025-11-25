@@ -75,5 +75,11 @@ export const api = {
   },
   experiments: {
     list: () => request("/experiments"),
+    create: (payload: Record<string, unknown>) =>
+      request("/experiments", { method: "POST", body: payload }),
+    logMetric: (experimentId: string, payload: { variant_id: string; value: number }) =>
+      request(`/experiments/${experimentId}/metrics`, { method: "POST", body: payload }),
+    simulate: (experimentId: string) =>
+      request(`/experiments/${experimentId}/simulate`, { method: "POST" }),
   },
 };

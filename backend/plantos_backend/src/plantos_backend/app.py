@@ -4,7 +4,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from plantos_backend.routers import plants, schedules
+from plantos_backend.routers import experiments, plants, schedules
 from plantos_backend.settings import AppSettings, get_settings
 
 
@@ -28,6 +28,7 @@ def create_app(settings: AppSettings | None = None) -> FastAPI:
 
     app.include_router(plants.router)
     app.include_router(schedules.router)
+    app.include_router(experiments.router)
 
     return app
 
